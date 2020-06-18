@@ -31,8 +31,14 @@ LOGSTASH_SUITE:
   - default
   - oss
   - elasticsearch
+  - security
+  - 6.x
+APM_SERVER_SUITE:
+  - default
+  - oss
+  - security
   - 6.x
 KUBERNETES_VERSION:
-  - '1.13'
   - '1.14'
   - '1.15'
+  - '1.16'
