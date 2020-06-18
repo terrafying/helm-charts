@@ -52,6 +52,13 @@ spec:
           configMap:
             name: {{ template "kibana.fullname" . }}-config
         {{- end }}
+        - name: {{ template "kibana.fullname" . }}-importscript
+          configMap:
+            name: {{ template "kibana.fullname" . }}-importscript
+            defaultMode: 0777
+        {{- range .Values.extraVolumes }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
     {{- with .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
@@ -117,10 +124,10 @@ spec:
         - containerPort: {{ .Values.httpPort }}
 {{- if .Values.lifecycle }}
         lifecycle:
-{{ toYaml .Values.lifecycle | indent 10 }}
+          {{- toYaml .Values.lifecycle | indent 10 }}
 {{- end }}
         resources:
-{{ toYaml .Values.resources | indent 10 }}
+          {{- toYaml .Values.resources | nindent 10 }}
         volumeMounts:
           {{- range .Values.secretMounts }}
           - name: {{ .name }}
@@ -134,3 +141,9 @@ spec:
             mountPath: /usr/share/kibana/config/{{ $path }}
             subPath: {{ $path }}
           {{- end -}}
+          - name: kibana-importscript
+            mountPath: "/tmp/dashboardImport.sh"
+            subPath: dashboardImport.sh
+          {{- range .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 10 }}
+          {{- end }}

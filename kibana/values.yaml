@@ -12,6 +12,14 @@ extraEnvs: []
 #  - name: MY_ENVIRONMENT_VAR
 #    value: the_value_goes_here
 
+extraVolumes:
+  - name: kibana-dashboards
+    configMap:
+      name: kibana-dashboards
+
+extraVolumeMounts:
+  - name: kibana-dashboards
+    mountPath: "/kibanadashboards"
 # A list of secrets and their paths to mount inside the pod
 # This is useful for mounting certificates for security and for mounting
 # the X-Pack license
