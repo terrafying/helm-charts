@@ -47,9 +47,9 @@ spec:
           configMap:
             name: {{ template "kibana.fullname" . }}-config
         {{- end }}
-        - name: {{ template "kibana.fullname" . }}-importscript
+        - name: kibana-importscript
           configMap:
-            name: {{ template "kibana.fullname" . }}-importscript
+            name: kibana-importscript
             defaultMode: 0777
         {{- with .Values.extraVolumes }}
           {{- toYaml . | nindent 8 }}
