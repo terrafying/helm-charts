@@ -56,7 +56,7 @@ spec:
           configMap:
             name: {{ template "kibana.fullname" . }}-importscript
             defaultMode: 0777
-        {{- range .Values.extraVolumes }}
+        {{- with .Values.extraVolumes }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
     {{- with .Values.nodeSelector }}
@@ -144,6 +144,6 @@ spec:
           - name: kibana-importscript
             mountPath: "/tmp/dashboardImport.sh"
             subPath: dashboardImport.sh
-          {{- range .Values.extraVolumeMounts }}
+          {{- with .Values.extraVolumeMounts }}
             {{- toYaml . | nindent 10 }}
           {{- end }}
