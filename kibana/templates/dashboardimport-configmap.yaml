@@ -16,7 +16,7 @@ data:
     cd $DASHBOARD_FOLDER
 
     set -x
-    
+
     for i in {1..60}; do
       curl -s localhost:5601/api/status | python -c 'import sys, json; print json.load(sys.stdin)["status"]["overall"]["state"]' 2> /dev/null | grep green > /dev/null && break || sleep 1
     done
@@ -57,13 +57,13 @@ data:
 
 
 
-    for DASHBOARD_FILE in $DASHBOARD_FOLDER/*; do
+    for DASHBOARD_FILE in $(ls $DASHBOARD_FOLDER); do
       echo -e "Importing ${DASHBOARD_FILE} dashboard..."
 
       import dashboard DASHBOARD_FILE
     done
 
-    for SAVED_OBJECT_FILE in $SAVED_OBJECT_FOLDER/*; do
+    for SAVED_OBJECT_FILE in $(ls $SAVED_OBJECT_FOLDER); do
       echo -e "Importing $SAVED_OBJECT_FILE saved object..."
 
       import saved_object $SAVED_OBJECT_FILE
