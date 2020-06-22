@@ -7,29 +7,42 @@ metadata:
     app: kibana
 data:
   dashboardImport.sh: |
-    #!/usr/bin/env bash
+    #!/usr/bin/env bash -xe
     #
     # kibana dashboard import script
     #
-
-    cd /kibanadashboards
+    DASHBOARD_FOLDER=/kibanadashboards
+    SAVED_OBJECT_FOLDER=/kibana_saved_objects
+    cd $DASHBOARD_FOLDER
 
     for i in {1..60}; do
       curl -s localhost:5601/api/status | python -c 'import sys, json; print json.load(sys.stdin)["status"]["overall"]["state"]' 2> /dev/null | grep green > /dev/null && break || sleep 1
     done
 
-    for DASHBOARD_FILE in *; do
-      echo -e "Importing ${DASHBOARD_FILE} dashboard..."
+    # Usage: import <dashboard|saved_object> <filename>
+    import() {
+      IMPORT_TYPE=$1
 
+      KIBANA_ENDPOINT="localhost:5601/api/kibana/dashboards/import?force=true"
+
+      if [ "$IMPORT_TYPE" = "saved_object" ]; then
+        KIBANA_ENDPOINT="localhost:5601/api/saved_objects/_import?overwrite=true"
+      fi
+
+      DASHBOARD_FILE=$2
       if ! python -c 'import sys, json; print json.load(sys.stdin)' < "${DASHBOARD_FILE}" &> /dev/null ; then
         echo "${DASHBOARD_FILE} is not valid JSON, assuming it's an URL..."
         TMP_FILE="$(mktemp)"
         curl -s $(cat ${DASHBOARD_FILE}) > ${TMP_FILE}
-        curl -v -s --connect-timeout 60 --max-time 60 -XPOST localhost:5601/api/kibana/dashboards/import?force=true -H 'kbn-xsrf:true' -H 'Content-type:application/json' -d @${TMP_FILE}
+        curl -v -s --connect-timeout 60 --max-time 60 -XPOST $KIBANA_ENDPOINT -H 'kbn-xsrf:true' -H 'Content-type:application/json' -d @${TMP_FILE}
         rm ${TMP_FILE}
       else
         echo "Valid JSON found in ${DASHBOARD_FILE}, importing..."
-        curl -v -s --connect-timeout 60 --max-time 60 -XPOST localhost:5601/api/kibana/dashboards/import?force=true -H 'kbn-xsrf:true' -H 'Content-type:application/json' -d @./${DASHBOARD_FILE}
+        if [ "$IMPORT_TYPE" = "saved_object" ]; then
+          curl -v -s --connect-timeout 60 --max-time 60 -X POST "localhost:5601/api/saved_objects/_import" -H "kbn-xsrf: true" --form file=@./${DASHBOARD_FILE}
+        else
+          curl -v -s --connect-timeout 60 --max-time 60 -XPOST $KIBANA_ENDPOINT -H 'kbn-xsrf:true' -H 'Content-type:application/json' -d @./${DASHBOARD_FILE}
+        fi
       fi
 
       if [ "$?" != "0" ]; then
@@ -38,5 +51,18 @@ data:
       else
         echo -e "\nImport of ${DASHBOARD_FILE} dashboard finished :-)"
       fi
+    }
 
+
+
+    for DASHBOARD_FILE in $DASHBOARD_FOLDER/*; do
+      echo -e "Importing ${DASHBOARD_FILE} dashboard..."
+
+      import dashboard DASHBOARD_FILE
+    done
+
+    for SAVED_OBJECT_FILE in $SAVED_OBJECT_FOLDER/*; do
+      echo -e "Importing $SAVED_OBJECT_FILE saved object..."
+
+      import saved_object $SAVED_OBJECT_FILE
     done
