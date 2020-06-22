@@ -7,7 +7,7 @@ metadata:
     app: kibana
 data:
   dashboardImport.sh: |
-    #!/usr/bin/env bash -xe
+    #!/usr/bin/env bash
     #
     # kibana dashboard import script
     #
@@ -15,6 +15,8 @@ data:
     SAVED_OBJECT_FOLDER=/kibana_saved_objects
     cd $DASHBOARD_FOLDER
 
+    set -x
+    
     for i in {1..60}; do
       curl -s localhost:5601/api/status | python -c 'import sys, json; print json.load(sys.stdin)["status"]["overall"]["state"]' 2> /dev/null | grep green > /dev/null && break || sleep 1
     done
