@@ -40,9 +40,9 @@ data:
       else
         echo "Valid JSON found in ${DASHBOARD_FILE}, importing..."
         if [ "$IMPORT_TYPE" = "saved_object" ]; then
-          curl -v -s --connect-timeout 60 --max-time 60 -X POST "localhost:5601/api/saved_objects/_import" -H "kbn-xsrf: true" --form file=@./${DASHBOARD_FILE}
+          curl -v -s --connect-timeout 60 --max-time 60 -X POST "localhost:5601/api/saved_objects/_import" -H "kbn-xsrf: true" --form file=@${DASHBOARD_FILE}
         else
-          curl -v -s --connect-timeout 60 --max-time 60 -XPOST $KIBANA_ENDPOINT -H 'kbn-xsrf:true' -H 'Content-type:application/json' -d @./${DASHBOARD_FILE}
+          curl -v -s --connect-timeout 60 --max-time 60 -XPOST $KIBANA_ENDPOINT -H 'kbn-xsrf:true' -H 'Content-type:application/json' -d @${DASHBOARD_FILE}
         fi
       fi
 
