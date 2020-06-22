@@ -13,7 +13,6 @@ data:
     #
     DASHBOARD_FOLDER=/kibanadashboards
     SAVED_OBJECT_FOLDER=/kibana_saved_objects
-    cd $DASHBOARD_FOLDER
 
     set -x
 
@@ -57,13 +56,13 @@ data:
 
 
 
-    for DASHBOARD_FILE in $(ls $DASHBOARD_FOLDER); do
+    for DASHBOARD_FILE in $(ls -d $DASHBOARD_FOLDER); do
       echo -e "Importing ${DASHBOARD_FILE} dashboard..."
 
       import dashboard DASHBOARD_FILE
     done
 
-    for SAVED_OBJECT_FILE in $(ls $SAVED_OBJECT_FOLDER); do
+    for SAVED_OBJECT_FILE in $(ls -d $SAVED_OBJECT_FOLDER); do
       echo -e "Importing $SAVED_OBJECT_FILE saved object..."
 
       import saved_object $SAVED_OBJECT_FILE
